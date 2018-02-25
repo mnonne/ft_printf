@@ -12,11 +12,33 @@
 
 #include "ft_printf.h"
 
-int		char_conversion(s_pecs specs, va_list args)
+ssize_t		wchar_conversion(s_pecs specs, va_list args)
+{
+	wchar_t			c;
+	ssize_t			ret;
+
+	c = va_arg(args, wchar_t);
+	ret = 0;
+	if (specs.minus)
+		ret += ft_putwchar(c);
+	while (specs.width-- > 1)
+	{
+		if (specs.zero && !specs.minus)
+			ft_putchar('0');
+		else
+			ft_putchar(' ');
+		ret++;
+	}
+	if (!specs.minus)
+		ret += ft_putwchar(c);
+	return (ret);
+}
+
+ssize_t		char_conversion(s_pecs specs, va_list args)
 {
 	unsigned char 	c;
 	int				i;
-	int				ret;
+	ssize_t			ret;
 
 	i = va_arg(args, int);
 	c = (unsigned char) i;

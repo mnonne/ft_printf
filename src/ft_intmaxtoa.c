@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../src/ft_printf.h"
+#include "ft_printf.h"
 
 char	*ft_intmaxtoa(intmax_t n)
 {
@@ -19,9 +19,9 @@ char	*ft_intmaxtoa(intmax_t n)
 	int				sign;
 	int				i;
 
-	sign = 0;\
-	if (n == -9223372036854775808)
-		n = n + 1;
+	sign = 0;
+	if (MIN_INT(n))
+		return (ft_strdup("-9223372036854775808"));
 	if (n < 0)
 	{
 		sign = 1;
@@ -75,6 +75,31 @@ uintmax_t	ft_dectooct(uintmax_t n)
 		i *= 10;
 	}
 	return (oct);
+}
+
+char 	*ft_dectooctchar(uintmax_t n)
+{
+	char	*str;
+	int		temp;
+	int 	i;
+	int		len;
+
+	i = 0;
+	if (!(str = (char *)ft_memalloc(sizeof(char) + 1)))
+		return (NULL);
+	if (n == 0)
+		return ("0");
+	while (n != 0)
+	{
+		temp = n % 8 + 48;
+		n /= 8;
+		str[i++] = temp;
+		len = ft_strlen(str);
+		if (n != 0)
+			str = (char *)ft_realloc(str, len + sizeof(char));
+	}
+	ft_strrev(str);
+	return (str);
 }
 
 void	*ft_realloc(void *ptr, size_t size)

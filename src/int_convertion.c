@@ -34,7 +34,7 @@ static intmax_t		get_i_argument(s_pecs specs, va_list args)
 	return (nbr);
 }
 
-ssize_t		int_left_conversion(char *val, s_pecs specs, size_t len)
+ssize_t		int_left_conversion(char *val, s_pecs specs, size_t len, intmax_t nbr)
 {
 	ssize_t		ret;
 
@@ -43,6 +43,11 @@ ssize_t		int_left_conversion(char *val, s_pecs specs, size_t len)
 		ret += write(1, " ", 1);
 	if (specs.sign)
 		ret += write(1, &specs.sign, 1);
+	if (MIN_INT(nbr))
+	{
+		ret += write(1, val, 1);
+		val++;
+	}
 	while (specs.prec > 0)
 	{
 		ret += write(1, "0", 1);
@@ -60,7 +65,7 @@ ssize_t		int_left_conversion(char *val, s_pecs specs, size_t len)
 	return (ret);
 }
 
-ssize_t 	int_right_conversion(char *val, s_pecs specs, size_t len)
+ssize_t 	int_right_conversion(char *val, s_pecs specs, size_t len, intmax_t nbr)
 {
 	ssize_t		ret;
 
@@ -69,6 +74,11 @@ ssize_t 	int_right_conversion(char *val, s_pecs specs, size_t len)
 		ret += write(1, " ", 1);
 	if (specs.sign && specs.zero)
 		ret += write(1, &specs.sign, 1);
+	if (val && *val == '-')
+	{
+		ret += write(1, val, 1);
+		val++;
+	}
 	specs.width -= ret;
 	while (specs.width > 0)
 	{
@@ -97,7 +107,7 @@ ssize_t		int_conversion(s_pecs specs, va_list args)
 	size_t		len;
 
 	nbr = get_i_argument(specs, args);
-	if (nbr < 0)
+	if (nbr < 0 && !(MIN_INT(nbr)))
 	{
 		specs.sign = 45;
 		nbr *= -1;
@@ -106,16 +116,21 @@ ssize_t		int_conversion(s_pecs specs, va_list args)
     if (nbr == 0 && (specs.dot && specs.prec == 0))
     	ft_strdel(&val);
 	len = ft_strlen(val);
+	if (MIN_INT(nbr))
+		len -= 1;
 	if (specs.sign && !specs.zero)
 		specs.width -= 1;
-	if (specs.prec)
-	    specs.prec -= len;
+	if ((specs.prec - (int)len) >= 0 )
+		specs.prec -= (int)len;
+	else
+		specs.prec = 0;
 	if (!specs.minus)
 		specs.width = specs.width - specs.prec - len;
 	if (specs.minus)
-		ret = int_left_conversion(val, specs, len);
+		ret = int_left_conversion(val, specs, len, nbr);
 	else
-		ret = int_right_conversion(val, specs, len);
-    free(val);
+		ret = int_right_conversion(val, specs, len, nbr);
+	if (nbr != 0)
+    	free(val);
 	return (ret);
 }

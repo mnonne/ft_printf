@@ -1,31 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_count_digits.c                                  :+:      :+:    :+:   */
+/*   ft_wstrdup.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aminadzh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/18 16:49:14 by aminadzh          #+#    #+#             */
-/*   Updated: 2017/11/18 16:51:50 by aminadzh         ###   ########.fr       */
+/*   Created: 2018/02/25 14:45:53 by aminadzh          #+#    #+#             */
+/*   Updated: 2018/02/25 14:45:55 by aminadzh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int		ft_count_digits(long long int n)
-{
-	unsigned long long int	nb;
-	int						i;
+#include "ft_printf.h"
 
-	if (n < 0)
-		nb = (unsigned long long int)n;
-	else
-		nb = n;
-	if (n == 0)
-		return (1);
+wchar_t		*ft_wstrdup(const char *s1)
+{
+	wchar_t		*s2;
+	size_t		i;
+
 	i = 0;
-	while (nb >= 1)
+	while (s1[i])
+		i++;
+	if (!(s2 = (wchar_t *)malloc(i * sizeof(wchar_t) + 1)))
+		return (NULL);
+	i = 0;
+	while (s1[i])
 	{
-		nb /= 10;
+		s2[i] = s1[i];
 		i++;
 	}
-	return (i);
+	s2[i] = '\0';
+	return (s2);
 }

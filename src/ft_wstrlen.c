@@ -1,31 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_count_digits.c                                  :+:      :+:    :+:   */
+/*   ft_wstrlen.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aminadzh <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/18 16:49:14 by aminadzh          #+#    #+#             */
-/*   Updated: 2017/11/18 16:51:50 by aminadzh         ###   ########.fr       */
+/*   Created: 2018/02/25 13:52:52 by aminadzh          #+#    #+#             */
+/*   Updated: 2018/02/25 13:52:53 by aminadzh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int		ft_count_digits(long long int n)
-{
-	unsigned long long int	nb;
-	int						i;
+#include "ft_printf.h"
 
-	if (n < 0)
-		nb = (unsigned long long int)n;
-	else
-		nb = n;
-	if (n == 0)
-		return (1);
+ssize_t		ft_wstrlen(const wchar_t *s)
+{
+	ssize_t		i;
+
+	if (!s)
+		return (0);
 	i = 0;
-	while (nb >= 1)
+	while (*s != '\0')
 	{
-		nb /= 10;
-		i++;
+		if (*s < 127)
+			i++;
+		else if (*s < 2047)
+			i += 2;
+		else if (*s < 65535)
+			i += 3;
+		else
+			i += 4;
+		s++;
 	}
 	return (i);
 }

@@ -45,6 +45,7 @@ s_pecs		zero_specs(void)
 	specs.prec = 0;
 	specs.dot = 0;
 	specs.e_size = none;
+	specs.e_type = empty;
 	return (specs);
 }
 
@@ -58,7 +59,7 @@ char		*get_width(char *format, s_pecs *specs, va_list args)
 	if (*str == '*')
 	{
 		specs->width = va_arg(args, int);
-		return (++format);
+		return (format);
 	}
 	while (ft_isdigit(*str++))
 		i++;
@@ -95,26 +96,35 @@ char		*get_pecision(char *format, s_pecs *specs, va_list args)
 
 void		get_size(char **format, s_pecs *specs)
 {
-	if (**format == 'l' && specs->e_size == none)
+	if (**format == 'l')
 	{
 		specs->e_size = l;
         (*format)++;
+		if (**format == 'l')
+		{
+			specs->e_size = ll;
+			(*format)++;
+		}
 	}
-	if (**format == 'l' && specs->e_size == l)
-		specs->e_size = ll;
-	if (**format == 'h' && specs->e_size == none)
+	else if (**format == 'h')
 	{
 		specs->e_size = h;
         (*format)++;
+		if (**format == 'h')
+		{
+			specs->e_size = hh;
+			(*format)++;
+		}
 	}
-	if (**format == 'h' && specs->e_size == h)
-		specs->e_size = hh;
-	if (**format == 'j')
+	else if (**format == 'j')
+	{
 		specs->e_size = j;
-	if (**format == 'z')
+		(*format)++;
+	}
+	else if (**format == 'z') {
 		specs->e_size = z;
-	if (specs->e_size == l || specs->e_size == h)
-		(*format)--;
+		(*format)++;
+	}
 }
 
 void		get_type(char **format, s_pecs *specs)
@@ -162,19 +172,25 @@ void		get_type(char **format, s_pecs *specs)
 		specs->e_type = c;
 		specs->e_size = l;
 	}
-	(*format)++;
+	if (**format && specs->e_type != empty)
+		(*format)++;
 }
 
 void		correct_specs(s_pecs *specs)
 {
 	if ((specs->e_type == x || specs->e_type == X) && specs->hash && specs->prec >= 2)
 		specs->prec -= 2;
-	if ((specs->e_type == x || specs->e_type == X) && specs->hash)
+	if ((specs->e_type == x || specs->e_type == X) && specs->hash && !specs->minus)
 		specs->width -= 2;
 	if (specs->e_type == o && specs->hash && specs->prec >= 1)
 		specs->prec -= 1;
 	if (specs->e_type == o || specs->e_type == x || specs->e_type == X || specs->e_type == u)
 		specs->spbar = 0;
+	if (specs->e_type == u || specs->e_type == x || specs->e_type == X || specs->e_type == o)//not sure
+	{
+		specs->sign = 0;//not sure
+		specs->spbar = 0;//not sure
+	}
 }
 
 s_pecs		get_specs(char **format, va_list args)
@@ -182,7 +198,7 @@ s_pecs		get_specs(char **format, va_list args)
 	s_pecs	specs;
 
 	specs = zero_specs();
-	while (**format && !CONV_TYPE(**format))
+	while (**format && !ft_isalpha(**format) && **format != '%')
 	{
 		if (IS_FLAG(**format))
 			get_flags(**format, &specs);
@@ -190,10 +206,9 @@ s_pecs		get_specs(char **format, va_list args)
 			*format = get_width(*format, &specs, args);
 		else if (**format == '.')
 			*format = get_pecision(++*format, &specs, args);
-		else if (ft_isalpha(**format))
-			get_size(format, &specs);
 		++*format;
 	}
+	get_size(format, &specs);
 	get_type(format, &specs);
 	correct_specs(&specs);
 	return (specs);

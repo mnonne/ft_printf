@@ -34,7 +34,63 @@ uintmax_t		get_u_argument(s_pecs specs, va_list args)
 	return (nbr);
 }
 
-ssize_t		uint_conversion(s_pecs specs, va_list args)
+ssize_t			uint_right_conversion(char *val, s_pecs specs, size_t len)
+{
+	ssize_t		ret;
+
+	ret = 0;
+	if (specs.hash && specs.e_type == x && val && *val != '0' && specs.zero)
+		ret += write(1, "0x", 2);
+	else if (specs.hash && specs.e_type == X && val && *val != '0' && specs.zero)
+		ret += write(1, "0X", 2);
+	while (specs.width > 0)
+	{
+		if (specs.zero)
+			ret += write(1, "0", 1);
+		else
+			ret += write(1, " ", 1);
+		specs.width--;
+	}
+	if (specs.hash && specs.e_type == x && val && *val != '0' && !specs.zero)
+		ret += write(1, "0x", 2);
+	else if (specs.hash && specs.e_type == X && val && *val != '0' && !specs.zero)
+		ret += write(1, "0X", 2);
+	while (specs.prec > 0)
+	{
+		ret += write(1, "0", 1);
+		specs.prec--;
+	}
+	ret += write(1, val, (int)len);
+	return (ret);
+}
+
+ssize_t			uint_left_conversion(char *val, s_pecs specs, size_t len)
+{
+	ssize_t		ret;
+
+	ret = 0;
+	if ((specs.hash && specs.e_type == x && val && *val != '0') || specs.e_type == p)
+		ret += write(1, "0x", 2);
+	else if (specs.hash && specs.e_type == X && val && *val != '0')
+		ret += write(1, "0X", 2);
+	while (specs.prec > 0)
+	{
+		ret += write(1, "0", 1);
+		specs.prec--;
+	}
+	ret += write(1, val, (int)len);
+	specs.width -= ret;
+	if (specs.sign && !specs.zero)
+		specs.width += 1;
+	while (specs.width > 0)
+	{
+		ret += write(1, " ", 1);
+		specs.width--;
+	}
+	return (ret);
+}
+
+ssize_t			uint_conversion(s_pecs specs, va_list args)
 {
 	char		*val;
 	uintmax_t	nbr;
@@ -43,12 +99,21 @@ ssize_t		uint_conversion(s_pecs specs, va_list args)
 
 	nbr = get_u_argument(specs, args);
 	if (nbr == 0 && (specs.dot && specs.prec == 0))
-		return (0);
+		ft_strdel(&val);
 	val = ft_uintmaxtoa(nbr);
 	len = ft_strlen(val);
-	if (specs.minus)
-		ret = int_left_conversion(val, specs, len);
+	if ((specs.prec - (int)len) >= 0 )
+		specs.prec -= (int)len;
 	else
-		ret = int_right_conversion(val, specs, len);
+		specs.prec = 0;
+	if (specs.hash)
+		specs.prec -= 2;
+	if (!specs.minus)
+		specs.width = specs.width - specs.prec - len;
+	if (specs.minus)
+		ret = uint_left_conversion(val, specs, len);
+	else
+		ret = uint_right_conversion(val, specs, len);
+	free(val);
 	return (ret);
 }

@@ -22,12 +22,12 @@ c == 'O' || c == 'u' || c == 'U' || c == 'X' || \
 c == 'x' || c == 'c' || c == 'C' || c == '%') 
 # define IS_FLAG(c) (c == '-' || c == '+' || c == ' ' || c == '#' || c == '0')
 
-
+# define MIN_INT(n) n == -9223372036854775808
 
 typedef struct 	t_pecs
 {
 	int			minus;
-	int			plus;
+	int			sign;
 	int			spbar;
 	int			zero;
 	int			hash;
@@ -46,6 +46,7 @@ typedef struct 	t_pecs
 	}			e_size;
 	enum
 	{
+		empty,
 		percent,
 		s,
 		S,
@@ -85,32 +86,39 @@ void			correct_specs(s_pecs *specs);
 ** handler.c
 */
 int				ft_printf_handler(s_pecs specs, va_list args);
+ssize_t			empty_conversion(s_pecs specs);
 
 /*
 ** str_conversion.c
 */
-int				str_conversion(s_pecs specs, va_list args);
-int				str_right_convertion(char *str, s_pecs specs, int len);
-int				str_left_convertion(char *str, s_pecs specs, int len);
+ssize_t			str_conversion(s_pecs specs, va_list args);
+
+/*
+** wstr_conversion.c
+*/
+ssize_t			wstr_conversion(s_pecs specs, va_list args);
 
 /*
 ** char_conversion.c
 */
-int				char_conversion(s_pecs specs, va_list args);
+ssize_t			char_conversion(s_pecs specs, va_list args);
 ssize_t			percent_conversion(s_pecs specs);
+ssize_t			wchar_conversion(s_pecs specs, va_list args);
 
 /*
 ** int_conversion.c
 */
 ssize_t			int_conversion(s_pecs specs, va_list args);
-ssize_t 		int_right_conversion(char *val, s_pecs specs, size_t len);
-ssize_t			int_left_conversion(char *val, s_pecs specs, size_t len);
+ssize_t 		int_right_conversion(char *val, s_pecs specs, size_t len, intmax_t nbr);
+ssize_t			int_left_conversion(char *val, s_pecs specs, size_t len, intmax_t nbr);
 
 /*
 ** uint_conversion.c
 */
 ssize_t			uint_conversion(s_pecs specs, va_list args);
 uintmax_t		get_u_argument(s_pecs specs, va_list args);
+ssize_t			uint_right_conversion(char *val, s_pecs specs, size_t len);
+ssize_t			uint_left_conversion(char *val, s_pecs specs, size_t len);
 
 /*
 ** oct_conversion.c
@@ -123,12 +131,21 @@ ssize_t			oct_conversion(s_pecs specs, va_list args);
 ssize_t			hex_conversion(s_pecs specs, va_list args);
 
 /*
+** point_conversion.c
+*/
+ssize_t			point_conversion(s_pecs specs, va_list args);
+
+/*
 ** addtolib.c
 */
 char			*ft_intmaxtoa(intmax_t n);
 char			*ft_uintmaxtoa(uintmax_t n);
 uintmax_t		ft_dectooct(uintmax_t n);
+char 			*ft_dectooctchar(uintmax_t n);
 void			*ft_realloc(void *ptr, size_t size);
 char			*ft_dectohex(uintmax_t n);
+ssize_t			ft_putwchar(wchar_t c);
+ssize_t			ft_wstrlen(const wchar_t *s);
+wchar_t 		*ft_wstrdup(const char *s1);
 
 #endif

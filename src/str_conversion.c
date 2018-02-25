@@ -12,9 +12,9 @@
 
 #include "ft_printf.h"
 
-int		str_left_convertion(char *str, s_pecs specs, int len)
+static ssize_t		str_left_convertion(char *str, s_pecs specs, size_t len)
 {
-	int		ret;
+	ssize_t		ret;
 
 	ret = 0;
 	if (len > specs.prec && specs.prec)
@@ -32,14 +32,14 @@ int		str_left_convertion(char *str, s_pecs specs, int len)
 	return (ret);
 }
 
-int		str_right_convertion(char *str, s_pecs specs, int len)
+static ssize_t		str_right_convertion(char *str, s_pecs specs, size_t len)
 {
-	int		ret;
+	ssize_t		ret;
 
 	ret = 0;
-	if (len > specs.prec && specs.prec)
+	if (len > specs.prec && specs.dot)
 		len = specs.prec;
-	while (specs.width - len > 0)
+	while (specs.width - (int)len > 0)
 	{
 		ft_putchar(' ');
 		ret++;
@@ -53,13 +53,12 @@ int		str_right_convertion(char *str, s_pecs specs, int len)
 	return (ret);
 }
 
-
-
-int		str_conversion(s_pecs specs, va_list args)
+ssize_t				str_conversion(s_pecs specs, va_list args)
 {
-	char	*val;
-	int		ret;
-	int		len;
+	char		*val;
+	char		*val_cp;
+	ssize_t		ret;
+	size_t		len;
 
 	val = va_arg(args, char *);
 	if (!val)
@@ -69,5 +68,7 @@ int		str_conversion(s_pecs specs, va_list args)
 		ret = str_left_convertion(val, specs, len);
 	else
 		ret = str_right_convertion(val, specs, len);
+	if (ft_strcmp(val, "(null)") == 0)
+		free(val);
 	return (ret);
 }

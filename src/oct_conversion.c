@@ -12,46 +12,56 @@
 
 #include "ft_printf.h"
 
-static uintmax_t		get_o_argument(s_pecs specs, va_list args)
+static char		*get_o_argument(s_pecs specs, va_list args, uintmax_t *nbr)
 {
-	uintmax_t	nbr;
-	uintmax_t	oct;
+	char		*oct;
 
-	nbr = va_arg(args, uintmax_t);
-	oct = ft_dectooct(nbr);
+	*nbr = va_arg(args, uintmax_t);
 	if (specs.e_size == hh)
-		oct = (unsigned char)oct;
+		*nbr = (unsigned char)*nbr;
 	else if (specs.e_size == h)
-		oct = (unsigned short int)oct;
+		*nbr = (unsigned short int)*nbr;
 	else if (specs.e_size == l)
-		oct = (unsigned long int)oct;
+		*nbr = (unsigned long int)*nbr;
 	else if (specs.e_size == ll)
-		oct = (unsigned long long int)oct;
+		*nbr = (unsigned long long int)*nbr;
 	else if (specs.e_size == j)
-		oct = (uintmax_t)oct;
+		*nbr = (uintmax_t)*nbr;
 	else if (specs.e_size == z)
-		oct = (size_t)oct;
+		*nbr = (size_t)*nbr;
 	else
-		oct = (unsigned int)oct;
+		*nbr = (unsigned int)*nbr;
+	oct = ft_dectooctchar(*nbr);
 	return (oct);
 }
 
-ssize_t					oct_conversion(s_pecs specs, va_list args)
+ssize_t			oct_conversion(s_pecs specs, va_list args)
 {
 	char		*val;
 	uintmax_t	nbr;
 	ssize_t		ret;
 	size_t		len;
 
-	ret = 0;
-	nbr = get_o_argument(specs, args);
+	val = get_o_argument(specs, args, &nbr);
 	if (nbr == 0 && (specs.dot && specs.prec == 0))
-		return (0);
-	val = ft_uintmaxtoa(nbr);
+		val = NULL;
 	len = ft_strlen(val);
-	if (specs.minus)
-		ret = int_left_conversion(val, specs, len);
+	if ((specs.prec - (int)len) >= 0 )
+		specs.prec -= (int)len;
 	else
-		ret = int_right_conversion(val, specs, len);
+		specs.prec = 0;
+	if (specs.hash)
+	{
+		specs.hash = 0;
+		specs.prec += 1;
+	}
+	if (!specs.minus)
+		specs.width = specs.width - specs.prec - len;
+	if (specs.minus)
+		ret = uint_left_conversion(val, specs, len);
+	else
+		ret = uint_right_conversion(val, specs, len);
+	if (nbr != 0)
+		free(val);
 	return (ret);
 }

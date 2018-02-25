@@ -6,7 +6,7 @@
 #    By: aminadzh <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/09 18:05:08 by aminadzh          #+#    #+#              #
-#    Updated: 2018/02/19 17:23:46 by aminadzh         ###   ########.fr        #
+#    Updated: 2018/02/24 13:27:58 by aminadzh         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,12 @@ SRC		= char_conversion.c \
 			specs.c \
 			str_conversion.c \
 			uint_conversion.c \
-			ft_intmaxtoa.c
+			ft_intmaxtoa.c \
+			ft_wstrlen.c \
+			point_conversion.c \
+			ft_putwchar.c \
+			wstr_conversion.c \
+			ft_wstrdup.c
 
 SRCS 	= $(addprefix $(SRC_DIR)/,$(SRC))
 
@@ -59,5 +64,5 @@ fclean: clean
 re: fclean all
 
 test: re
-	@gcc -Wall -Wextra -Werror -o test.out tests/main.c -I./includes -L. -lftprintf
+	@gcc -o test.out tests/main.c -I./includes -L. -lftprintf
 	@./test.out
