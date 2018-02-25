@@ -50,7 +50,7 @@ ssize_t			oct_conversion(s_pecs specs, va_list args)
 		specs.prec -= (int)len;
 	else
 		specs.prec = 0;
-	if (specs.hash)
+	if (specs.hash && nbr != 0)
 	{
 		specs.hash = 0;
 		specs.prec += 1;
