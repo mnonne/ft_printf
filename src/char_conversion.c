@@ -41,7 +41,7 @@ ssize_t		char_conversion(s_pecs specs, va_list args)
 	ssize_t			ret;
 
 	i = va_arg(args, int);
-	c = (char) i;
+	c = (unsigned char) i;
 	ret = 0;
 	if (specs.minus)
 		ft_putchar(c);
